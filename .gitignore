@@ -1,0 +1,4 @@
+batmilkenv/*
+*.pyc
+*/__pycache__
+*.db
