@@ -1,11 +1,11 @@
 from app import db
 from app.models import *
 
-dont work though
+#dont work though
 
 data = {
         'text': 'Which milk would you rather drink?',
-        'name': 'milk',
+        'name': 'toots',
         'contenders': [
             'cow',
             'rabbit',
@@ -42,10 +42,12 @@ question = Question(name=data['name'], question_text=data['text'])
 db.session.add(question)
 db.session.commit()
 
-question = Question.query.filter_by(name=data['name']).first()
+# question = Question.query.filter_by(name=data['name']).first()
 
-for mammal_name in data['contenders']:
-    mammal = Contender(question_id=question.id,
-                        name=mammal_name)
-    db.session.add(mammal)
-db.session.commit()
+# for mammal_name in data['contenders']:
+#     mammal = Contender(question_id=question.id,
+#                         name=mammal_name)
+#     db.session.add(mammal)
+# db.session.commit()
+
+print(question.id)

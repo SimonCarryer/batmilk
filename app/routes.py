@@ -10,15 +10,36 @@ vote_parser = reqparse.RequestParser()
 vote_parser.add_argument('winner_id', type=int, required=True, help='id of winning contender')
 vote_parser.add_argument('loser_id', type=int, required=True, help='id of losing contender')
 
+question_parser = reqparse.RequestParser()
+question_parser.add_argument('password', type=str, required=True, help='Password to authenticate new question')
+question_parser.add_argument('name', type=str, required=True, help='Short name of question')
+question_parser.add_argument('text', type=str, required=True, help='Text of question')
+question_parser.add_argument('contenders', action='split', required=False, help='Contenders to sort')
+
 
 @api.route('/hello')
 class HelloWorld(Resource):
     
-    #@api.doc(parser=None)
     def get(self):
         '''Hello World'''
         return jsonify('Hello world')
 
+class PostQuestion(Resource):
+
+    @api.doc(parser=question_parser)
+    def post(self):
+        '''Add a question to the database.'''
+        args = question_parser.parse_args()
+        existing_question = db.session.query(db.exists().where(Question.name == args['name'])).scalar() # Check if name already exists
+        password_correct = args['password'] == application.DATABASE_POST_PASSWORD
+        if password_correct and not existing_question: 
+            question = Question(name=args['name'], question_text=args['text'])
+            db.session.add(question)
+            for name in args['contenders']:
+                contender = Contender(question_id=question.id,
+                                      name=name)
+                db.session.add(contender)
+            db.session.commit()
 
 @api.route('/<question_name>/contenders')
 class QuestionContenders(Resource):
