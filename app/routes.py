@@ -24,8 +24,8 @@ class HelloWorld(Resource):
         '''Hello World'''
         return jsonify('Hello world')
 
+@api.route('/new')
 class PostQuestion(Resource):
-
     @api.doc(parser=question_parser)
     def post(self):
         '''Add a question to the database.'''
