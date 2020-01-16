@@ -14,11 +14,10 @@ question_parser = reqparse.RequestParser()
 question_parser.add_argument('password', type=str, required=True, help='Password to authenticate new question')
 question_parser.add_argument('name', type=str, required=True, help='Short name of question')
 question_parser.add_argument('text', type=str, required=True, help='Text of question')
-question_parser.add_argument('contenders', action='split', required=False, help='Contenders to sort')
 
 contender_parser = reqparse.RequestParser()
-contender_parser.add_argument('password', type=str, required=True, help='Password to authenticate new question')
-contender_parser.add_argument('contenders', action='split', required=True, help='List of new contenders')
+contender_parser.add_argument('password', type=str, required=True, help='Password to authenticate new contender')
+contender_parser.add_argument('name', required=True, help='Name of new contender')
 
 
 @api.route('/hello')
@@ -39,15 +38,10 @@ class PostQuestion(Resource):
         if password_correct and not existing_question: 
             question = Question(name=args['name'], question_text=args['text'])
             db.session.add(question)
-            if args['contenders']:
-                for name in args['contenders']:
-                    contender = Contender(question_id=question.id,
-                                        name=name)
-                    db.session.add(contender)
             db.session.commit()
 
 @api.route('/<question_name>/new-contender')
-class PostContenders(Resource):
+class PostContender(Resource):
     @api.doc(parser=contender_parser)
     def post(self, question_name):
         '''Add contenders to a question.'''
@@ -56,12 +50,11 @@ class PostContenders(Resource):
         question = Question.query.filter_by(name=question_name).first()
         if password_correct and question is not None:
             contenders = [i.name for i in question.contenders]
-            for name in args['contenders']:
-                if name not in contenders:
-                    contender = Contender(question_id=question.id,
-                                        name=name)
-                    db.session.add(contender)
-            db.session.commit()
+            if args['name'] not in contenders:
+                contender = Contender(question_id=question.id,
+                                        name=args['name'])
+                db.session.add(contender)
+                db.session.commit()
 
 @api.route('/<question_name>/contenders')
 class QuestionContenders(Resource):

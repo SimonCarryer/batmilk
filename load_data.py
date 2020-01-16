@@ -1,53 +1,20 @@
-from app import db
-from app.models import *
+import yaml
+import requests
 
-#dont work though
+with open('milk.yaml', 'r') as f:
+    data = yaml.load(f.read())
 
-data = {
-        'text': 'Which milk would you rather drink?',
-        'name': 'toots',
-        'contenders': [
-            'cow',
-            'rabbit',
-            'bat',
-            'weasel',
-            'aardvark',
-            'rat',
-            'hare',
-            'guinea pig',
-            'pig',
-            'camel',
-            'horse',
-            'otter',
-            'seal',
-            'whale',
-            'kangaroo',
-            'tiger',
-            'lion',
-            'mouse',
-            'sheep',
-            'goat',
-            'cat',
-            'dog',
-            'wolf',
-            'llama',
-            'panda',
-            'bear',
-            'anteater',
-            'pangolin'
-        ]
-}
+password = 'test_password'
 
-question = Question(name=data['name'], question_text=data['text'])
-db.session.add(question)
-db.session.commit()
+url = 'https://batmilk.herokuapp.com/new'
 
-# question = Question.query.filter_by(name=data['name']).first()
+response = requests.post(url=url, params={'password': password, 'name': data['name'], 'text': data['text']})
 
-# for mammal_name in data['contenders']:
-#     mammal = Contender(question_id=question.id,
-#                         name=mammal_name)
-#     db.session.add(mammal)
-# db.session.commit()
+print(response)
 
-print(question.id)
+url = 'https://batmilk.herokuapp.com/%s/new-contender' % data['name']
+
+for name in data['contenders']:
+    response = requests.post(url=url, params={'password': password, 'name': name})
+    print(response)
+

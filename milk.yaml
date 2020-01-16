@@ -1,0 +1,40 @@
+text: Which milk would you rather drink?
+name: milkier
+contenders:
+  - cow
+  - rabbit
+  - bat
+  - weasel
+  - rat
+  - guinea pig
+  - pig
+  - camel
+  - horse
+  - otter
+  - seal
+  - whale
+  - kangaroo
+  - leopard
+  - lion
+  - mouse
+  - sheep
+  - goat
+  - cat
+  - dog
+  - wolf
+  - llama
+  - panda
+  - bear
+  - anteater
+  - pangolin
+  - squirrel
+  - elephant
+  - fox
+  - panda
+  - chimpanzee
+  - monkey
+  - human
+  - mole
+  - lemur
+  - hyena
+  - dolphin
