@@ -55,10 +55,12 @@ class PostContenders(Resource):
         password_correct = args['password'] == application.config['DATABASE_POST_PASSWORD']
         question = Question.query.filter_by(name=question_name).first()
         if password_correct and question is not None:
+            contenders = [i.name for i in question.contenders]
             for name in args['contenders']:
-                contender = Contender(question_id=question.id,
-                                    name=name)
-                db.session.add(contender)
+                if name not in contenders:
+                    contender = Contender(question_id=question.id,
+                                        name=name)
+                    db.session.add(contender)
             db.session.commit()
 
 @api.route('/<question_name>/contenders')
