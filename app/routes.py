@@ -1,5 +1,5 @@
 from app import application, api, db
-from .models import Question, Vote
+from .models import Question, Vote, Contender
 from flask_restplus import Resource, reqparse
 from collections import Counter
 
@@ -16,6 +16,10 @@ question_parser.add_argument('name', type=str, required=True, help='Short name o
 question_parser.add_argument('text', type=str, required=True, help='Text of question')
 question_parser.add_argument('contenders', action='split', required=False, help='Contenders to sort')
 
+contender_parser = reqparse.RequestParser()
+contender_parser.add_argument('password', type=str, required=True, help='Password to authenticate new question')
+contender_parser.add_argument('contenders', action='split', required=True, help='List of new contenders')
+
 
 @api.route('/hello')
 class HelloWorld(Resource):
@@ -31,13 +35,29 @@ class PostQuestion(Resource):
         '''Add a question to the database.'''
         args = question_parser.parse_args()
         existing_question = db.session.query(db.exists().where(Question.name == args['name'])).scalar() # Check if name already exists
-        password_correct = args['password'] == application.DATABASE_POST_PASSWORD
+        password_correct = args['password'] == application.config['DATABASE_POST_PASSWORD']
         if password_correct and not existing_question: 
             question = Question(name=args['name'], question_text=args['text'])
             db.session.add(question)
+            if args['contenders']:
+                for name in args['contenders']:
+                    contender = Contender(question_id=question.id,
+                                        name=name)
+                    db.session.add(contender)
+            db.session.commit()
+
+@api.route('/<question_name>/new-contender')
+class PostContenders(Resource):
+    @api.doc(parser=contender_parser)
+    def post(self, question_name):
+        '''Add contenders to a question.'''
+        args = contender_parser.parse_args()
+        password_correct = args['password'] == application.config['DATABASE_POST_PASSWORD']
+        question = Question.query.filter_by(name=question_name).first()
+        if password_correct and question is not None:
             for name in args['contenders']:
                 contender = Contender(question_id=question.id,
-                                      name=name)
+                                    name=name)
                 db.session.add(contender)
             db.session.commit()
 
